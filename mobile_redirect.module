@@ -34,36 +34,48 @@ function mobile_redirect_init() {
         return;
 
     if (mobile_redirect_is_mobile_website())
-        drupal_goto(mobile_redirect_url());
+        drupal_goto(mobile_redirect_destination());
+}
+
+function mobile_redirect_current_path_is_destination() {
+  if ($_GET['q'] == drupal_lookup_path('source', mobile_redirect_destination()))
+    return TRUE;
+
+  if ($_GET['q'] == drupal_lookup_path('alias', mobile_redirect_destination()))
+    return TRUE;
+
+  return FALSE;
 }
 
 function mobile_redirect_is_disabled() {
-    global $user;
+  global $user;
 
-    if ($_GET['q'] == drupal_lookup_path('source', mobile_redirect_url()))
+  if (mobile_redirect_destination() == '')
+    return TRUE;
+
+  if (mobile_redirect_current_path_is_destination())
+    return TRUE;
+
+  if (mobile_redirect_current_path_is_admin())
+    return TRUE;
+
+  if (mobile_redirect_matches(array('mobile-redirect', 'mobile-redirect/*')))
+    return TRUE;
+
+  if (mobile_redirect_matches_excluded_page())
+    return TRUE;
+
+  if (in_array('administrator', array_values($user->roles))) {
       return TRUE;
+  }
 
-    if ($_GET['q'] == drupal_lookup_path('alias', mobile_redirect_url()))
-      return TRUE;
+  return isset($_SESSION['mobile_redirect_disabled'])
+    && $_SESSION['mobile_redirect_disabled'] == TRUE;
+}
 
-    if (mobile_redirect_url() == '')
-      return TRUE;
 
-    if (mobile_redirect_matches(array('admin', 'admin/*')))
-      return TRUE;
-
-    if (mobile_redirect_matches(array('mobile-redirect', 'mobile-redirect/*')))
-      return TRUE;
-
-    if (mobile_redirect_matches_excluded_page())
-      return TRUE;
-
-    if (in_array('administrator', array_values($user->roles))) {
-        return TRUE;
-    }
-
-    return isset($_SESSION['mobile_redirect_disabled'])
-               && $_SESSION['mobile_redirect_disabled'] == TRUE;
+function mobile_redirect_current_path_is_admin() {
+  return mobile_redirect_matches(array('admin', 'admin/*'));
 }
 
 function mobile_redirect_matches_excluded_page() {
@@ -88,7 +100,7 @@ function mobile_redirect_matches($patterns, $cur_path = NULL) {
   return $matches;
 }
 
-function mobile_redirect_url() {
+function mobile_redirect_destination() {
     return variable_get('mobile_redirect_path', '');
 }
 
@@ -103,4 +115,3 @@ function mobile_redirect_is_mobile_website() {
     else
         return FALSE;
 }
-
