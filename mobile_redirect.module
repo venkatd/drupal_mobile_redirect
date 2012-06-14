@@ -40,11 +40,14 @@ function mobile_redirect_init() {
 function mobile_redirect_is_disabled() {
     global $user;
 
-    if ($_GET['q'] == mobile_redirect_url())
+    if ($_GET['q'] == drupal_lookup_path('source', mobile_redirect_url()))
+      return TRUE;
+
+    if ($_GET['q'] == drupal_lookup_path('alias', mobile_redirect_url()))
       return TRUE;
 
     if (mobile_redirect_url() == '')
-        return TRUE;
+      return TRUE;
 
     if (mobile_redirect_matches(array('admin', 'admin/*')))
       return TRUE;
