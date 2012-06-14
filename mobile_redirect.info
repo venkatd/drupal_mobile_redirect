@@ -1,0 +1,6 @@
+name = Mobile Redirect
+description = Redirect to a mobile friendly page for mobile browsers
+core = 7.x
+
+configure = admin/config/mobile-redirect
+
